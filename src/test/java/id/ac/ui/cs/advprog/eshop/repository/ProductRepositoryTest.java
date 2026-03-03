@@ -3,22 +3,25 @@ package id.ac.ui.cs.advprog.eshop.repository;
 import id.ac.ui.cs.advprog.eshop.model.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.mock.mockito.MockBean;
+// Tidak perlu Mockito lagi untuk In-Memory Repository
+// import org.mockito.InjectMocks;
+// import org.mockito.junit.jupiter.MockitoExtension;
+// import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Iterator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
-public class ProductRepositoryTest {
-    @InjectMocks
+// @ExtendWith(MockitoExtension.class) // Hapus ini
+class ProductRepositoryTest { // Hapus 'public' sesuai standar JUnit 5
+
+    // Gunakan Interface sebagai tipe, tetapi instansiasi dengan Impl-nya
     ProductRepository productRepository;
 
     @BeforeEach
     void setUp() {
+        // Instansiasi manual karena ini In-Memory
+        productRepository = new ProductRepository();
     }
 
     @Test
@@ -59,13 +62,14 @@ public class ProductRepositoryTest {
 
         Iterator<Product> productIterator = productRepository.findAll();
         assertTrue(productIterator.hasNext());
+
         Product savedProduct = productIterator.next();
         assertEquals(product1.getProductId(), savedProduct.getProductId());
+
         savedProduct = productIterator.next();
         assertEquals(product2.getProductId(), savedProduct.getProductId());
         assertFalse(productIterator.hasNext());
     }
-
 
     @Test
     void testCreateProductWithoutId() {
@@ -78,7 +82,7 @@ public class ProductRepositoryTest {
         Iterator<Product> productIterator = productRepository.findAll();
         assertTrue(productIterator.hasNext());
         Product savedProduct = productIterator.next();
-        assertNotNull(savedProduct.getProductId()); // Pastikan ID digenerate
+        assertNotNull(savedProduct.getProductId());
         assertEquals("Sampo Tanpa ID", savedProduct.getProductName());
     }
 
@@ -115,7 +119,8 @@ public class ProductRepositoryTest {
         updatedProduct.setProductName("Sampo Cap Bambang Baru");
         updatedProduct.setProductQuantity(200);
 
-        Product result = productRepository.update(updatedProduct);
+        // PERHATIKAN: Ini sesuai dengan parameter update kita yang baru yaitu (ID, Entity)
+        Product result = productRepository.update(updatedProduct.getProductId(), updatedProduct);
 
         assertNotNull(result);
         assertEquals("Sampo Cap Bambang Baru", result.getProductName());
@@ -133,7 +138,8 @@ public class ProductRepositoryTest {
         product.setProductName("Sampo Gaib");
         product.setProductQuantity(0);
 
-        Product result = productRepository.update(product);
+        // Menyesuaikan parameter
+        Product result = productRepository.update(product.getProductId(), product);
         assertNull(result);
     }
 
@@ -158,5 +164,4 @@ public class ProductRepositoryTest {
         Iterator<Product> productIterator = productRepository.findAll();
         assertFalse(productIterator.hasNext());
     }
-
 }
