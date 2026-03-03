@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ProductTest {
+class ProductTest { // Hapus 'public'
     Product product;
 
     @BeforeEach
@@ -17,7 +17,7 @@ public class ProductTest {
     }
 
     @Test
-    void testGetProductId() {
+    void testGetProductId() { // Hapus 'public' (jika ada)
         assertEquals("eb558e9f-1c39-460e-8860-71af6af63bd6", this.product.getProductId());
     }
 
@@ -30,5 +30,4 @@ public class ProductTest {
     void testGetProductQuantity() {
         assertEquals(100, this.product.getProductQuantity());
     }
-
 }

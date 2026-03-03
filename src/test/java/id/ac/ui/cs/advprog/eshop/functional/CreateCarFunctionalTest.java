@@ -16,7 +16,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ExtendWith(SeleniumJupiter.class)
-class CreateProductFunctionalTest {
+class CreateCarFunctionalTest {
 
     @LocalServerPort
     private int serverPort;
@@ -34,22 +34,27 @@ class CreateProductFunctionalTest {
     @Test
     void createCar_isCorrect(ChromeDriver driver) throws Exception {
 
-        driver.get(baseUrl + "/product/list");
+        driver.get(baseUrl + "/car/list");
 
-        driver.findElement(By.linkText("Create Product")).click();
+        driver.findElement(By.linkText("Create Car")).click();
 
-        WebElement nameInput = driver.findElement(By.name("Name"));
+        WebElement nameInput = driver.findElement(By.name("carName"));
         nameInput.clear();
-        nameInput.sendKeys("Bola");
+        nameInput.sendKeys("Kijang Innova Zenix");
 
-        WebElement quantityInput = driver.findElement(By.name("productQuantity"));
+        WebElement colorInput = driver.findElement(By.name("carColor"));
+        colorInput.clear();
+        colorInput.sendKeys("Putih Mutiara");
+
+        WebElement quantityInput = driver.findElement(By.name("carQuantity"));
         quantityInput.clear();
         quantityInput.sendKeys("50");
 
         driver.findElement(By.tagName("button")).click();
 
         String pageSource = driver.getPageSource();
-        assertTrue(pageSource.contains("Bola"), "Product name should be displayed in the list");
-        assertTrue(pageSource.contains("50"), "Product quantity should be displayed in the list");
+        assertTrue(pageSource.contains("Kijang Innova Zenix"), "Car name should be displayed in the list");
+        assertTrue(pageSource.contains("Putih Mutiara"), "Car color should be displayed in the list");
+        assertTrue(pageSource.contains("50"), "Car quantity should be displayed in the list");
     }
 }
