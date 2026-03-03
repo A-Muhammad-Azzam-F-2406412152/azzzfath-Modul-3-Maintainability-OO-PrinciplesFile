@@ -32,3 +32,28 @@ Selama mengerjakan latihan ini, saya menemukan dan memperbaiki beberapa masalah 
 
 ### 2. CI/CD Implementation Evaluation
 Menurut saya, implementasi *workflows* GitHub Actions yang telah dibuat saat ini sudah memenuhi definisi *Continuous Integration* (CI) dan *Continuous Deployment* (CD). Pertama, dari sisi CI, setiap kali ada *push* atau *pull request* ke repositori, *pipeline* secara otomatis menjalankan proses *build*, pengujian (*unit* dan *functional tests*), serta analisis kualitas kode, yang memastikan kode baru terintegrasi dengan aman tanpa merusak fitur yang sudah ada. Kedua, dari sisi CD, *pipeline* dikonfigurasi untuk langsung mendeploy aplikasi ke platform PaaS secara otomatis setiap kali proses integrasi (CI) berhasil dilewati pada *branch* utama. Dengan alur ini, tidak ada lagi intervensi manual yang dibutuhkan untuk merilis perubahan kode ke *production*, yang mana merupakan inti dari konsep *Continuous Deployment* dan otomasi pengiriman perangkat lunak.
+
+## Reflection 4
+
+### 1. SOLID Principles Applied to the Project
+Dalam proyek ini, saya telah menerapkan kelima prinsip SOLID untuk meningkatkan kualitas dan skalabilitas kode:
+
+* **Single Responsibility Principle (SRP):** Saya memisahkan `CarController` dari `ProductController` menjadi dua *file* yang berbeda. Setiap kelas kini hanya memiliki satu tanggung jawab utama, yaitu mengelola rute dan logika antarmuka untuk domainnya masing-masing.
+* **Open/Closed Principle (OCP):** Saya mengimplementasikan pola *Template Method* pada *Repository* dan *Service* dengan membuat kelas abstrak seperti `AbstractInMemoryRepository` dan `AbstractBaseServiceImpl`. Kode ini tertutup untuk modifikasi (logika CRUD utama tidak perlu diubah-ubah lagi), namun terbuka untuk ekstensi (bisa membuat `ProductRepositoryImpl` dan `CarRepositoryImpl` baru dengan sangat mudah).
+* **Liskov Substitution Principle (LSP):** Saya menghapus relasi *inheritance* (`extends ProductController`) pada `CarController`. `CarController` bukanlah sebuah `ProductController`, sehingga memaksa pewarisan tersebut melanggar LSP dan dapat memicu anomali *routing* pada Spring Boot. Kini keduanya berdiri secara independen.
+* **Interface Segregation Principle (ISP):** Daripada membuat satu *interface* besar (misalnya `EshopService`) yang memaksa *client* mengimplementasikan metode yang tidak relevan, saya memecahnya menjadi *interface* spesifik seperti `ProductService` dan `CarService` (yang mewarisi `BaseService`).
+* **Dependency Inversion Principle (DIP):** Pada lapisan *Controller* dan *Service*, saya mengubah injeksi dependensi (`@Autowired`) agar bergantung pada abstraksi (*Interface*), bukan pada detail implementasi konkretnya. Contohnya, menggunakan `@Autowired private CarService carService` alih-alih `CarServiceImpl`.
+
+### 2. Advantages of Applying SOLID Principles (with Examples)
+Menerapkan SOLID membuat kode menjadi sangat *maintainable*, modular, dan mudah diuji (*testable*).
+
+* **Fleksibilitas Penggantian Komponen (DIP & OCP):** Karena `CarController` bergantung pada *interface* `CarService`, jika di masa depan saya ingin mengubah penyimpanan data dari *In-Memory* (`ArrayList`) ke basis data PostgreSQL, saya cukup membuat kelas baru misalnya `CarServicePostgresImpl` yang mengimplementasikan `CarService`. Saya tidak perlu mengubah satu baris kode pun di dalam `CarController`.
+* **Isolasi Bug & Modifikasi (SRP):** Jika terjadi *error* pada fungsionalitas edit mobil, saya tahu persis bahwa saya hanya perlu memeriksa `CarController` atau `CarServiceImpl`. Saya tidak perlu khawatir modifikasi tersebut akan secara tidak sengaja merusak fitur produk, karena tanggung jawabnya sudah dipisah.
+* **Pengurangan Duplikasi Kode / DRY (OCP):** Dengan adanya `AbstractBaseServiceImpl`, saat saya ingin menambahkan fitur baru (misalnya entitas `Motorcycle`), saya hanya perlu membuat kelas `MotorcycleServiceImpl` yang melakukan *extends* ke kelas abstrak tersebut. Logika `create`, `findAll`, `update`, dan `delete` langsung tersedia tanpa perlu ditulis ulang.
+
+### 3. Disadvantages of Not Applying SOLID Principles (with Examples)
+Mengabaikan prinsip SOLID akan menghasilkan *Spaghetti Code* yang rapuh, kaku, dan sulit dipelihara (*Rigidity & Fragility*).
+
+* **Kerapuhan Sistem / Fragility (Pelanggaran SRP & LSP):** Saat `CarController` digabung dalam satu file dengan `ProductController` atau melakukan *extends* kepadanya, perubahan kecil pada `ProductController` (seperti mengubah *base* URL atau menghapus sebuah metode) dapat secara tidak terduga merusak fitur `Car`. Ini membuat *developer* takut untuk melakukan *refactoring*.
+* **Kesulitan dalam Unit Testing (Pelanggaran DIP):** Jika *Controller* bergantung langsung pada kelas konkret (misal: `@Autowired private CarServiceImpl`), kita akan sangat kesulitan saat ingin melakukan *mocking* dependensi pada *Unit Test*. Kita dipaksa untuk menyambungkan tes ke implementasi aslinya, yang mungkin membutuhkan koneksi *database* sungguhan.
+* **Kode yang Mengembang / Bloated (Pelanggaran ISP & DRY):** Tanpa *interface* yang tersegregasi dan kelas abstrak, kita harus menulis ulang logika *for-loop* untuk pencarian ID, penambahan ke `List`, dan UUID *generator* di setiap *Repository* (`Product` dan `Car`). Jika ada satu *bug* pada logika pencarian ID tersebut, kita harus memperbaikinya secara manual di banyak tempat.
