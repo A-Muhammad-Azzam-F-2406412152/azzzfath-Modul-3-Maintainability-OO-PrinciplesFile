@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Find Payment</title>
+</head>
+<body>
+<h2>Find Payment Detail</h2>
+<form th:action="@{/payment/detail}" method="get" id="searchForm">
+    <label for="paymentId">Payment ID:</label>
+    <input type="text" id="paymentId" required>
+    <button type="button" onclick="searchPayment()">Search</button>
+</form>
+<script>
+    function searchPayment() {
+        const id = document.getElementById('paymentId').value;
+        window.location.href = '/payment/detail/' + id;
+    }
+</script>
+</body>
+</html>
