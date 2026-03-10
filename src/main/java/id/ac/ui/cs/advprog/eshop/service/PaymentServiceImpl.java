@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -17,21 +19,38 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Payment addPayment(Order order, String method, Map<String, String> paymentData) {
-        return null;
+        String paymentId = UUID.randomUUID().toString();
+        Payment payment = new Payment(paymentId, method, paymentData, order);
+        return paymentRepository.save(payment);
     }
 
     @Override
     public Payment setStatus(Payment payment, String status) {
-        return null;
+        Payment result = paymentRepository.findById(payment.getId());
+        if (result != null) {
+            result.setStatus(status);
+
+            // Ubah status Order sesuai ketentuan
+            if (status.equals("SUCCESS")) {
+                result.getOrder().setStatus("SUCCESS");
+            } else if (status.equals("REJECTED")) {
+                result.getOrder().setStatus("FAILED");
+            }
+
+            paymentRepository.save(result);
+            return result;
+        } else {
+            throw new NoSuchElementException("Payment not found");
+        }
     }
 
     @Override
     public Payment getPayment(String paymentId) {
-        return null;
+        return paymentRepository.findById(paymentId);
     }
 
     @Override
     public List<Payment> getAllPayments() {
-        return null;
+        return paymentRepository.getAllPayments();
     }
 }
