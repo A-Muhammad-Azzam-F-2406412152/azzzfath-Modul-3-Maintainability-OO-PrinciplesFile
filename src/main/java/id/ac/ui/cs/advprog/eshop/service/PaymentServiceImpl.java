@@ -27,21 +27,19 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public Payment setStatus(Payment payment, String status) {
         Payment result = paymentRepository.findById(payment.getId());
-        if (result != null) {
-            result.setStatus(status);
 
-            // Ubah status Order sesuai ketentuan
-            if (status.equals("SUCCESS")) {
-                result.getOrder().setStatus("SUCCESS");
-            } else if (status.equals("REJECTED")) {
-                result.getOrder().setStatus("FAILED");
-            }
-
-            paymentRepository.save(result);
-            return result;
-        } else {
+        if (result == null) {
             throw new NoSuchElementException("Payment not found");
         }
+
+        result.setStatus(status);
+        if (status.equals("SUCCESS")) {
+            result.getOrder().setStatus("SUCCESS");
+        } else if (status.equals("REJECTED")) {
+            result.getOrder().setStatus("FAILED");
+        }
+
+        return paymentRepository.save(result);
     }
 
     @Override
