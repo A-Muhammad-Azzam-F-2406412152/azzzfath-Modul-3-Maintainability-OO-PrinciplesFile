@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pay Order</title>
+</head>
+<body>
+<h2>Pay Order</h2>
+<div th:if="${order != null}">
+    <p><strong>Order ID:</strong> <span th:text="${order.id}"></span></p>
+    <p><strong>Total Items:</strong> <span th:text="${order.products.size()}"></span></p>
+
+    <form th:action="@{/order/pay/{id}(id=${order.id})}" method="post">
+        <button type="submit">Confirm Payment</button>
+    </form>
+</div>
+<div th:if="${order == null}">
+    <p>Order not found.</p>
+</div>
+</body>
+</html>
