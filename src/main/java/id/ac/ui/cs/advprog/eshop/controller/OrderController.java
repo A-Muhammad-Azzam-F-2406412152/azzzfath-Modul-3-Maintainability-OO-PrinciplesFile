@@ -1,35 +1,47 @@
 package id.ac.ui.cs.advprog.eshop.controller;
 
+import id.ac.ui.cs.advprog.eshop.model.Order;
+import id.ac.ui.cs.advprog.eshop.service.OrderService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/order")
 public class OrderController {
 
+    @Autowired
+    private OrderService orderService;
+
     @GetMapping("/create")
     public String createOrderPage() {
-        return null; // Sengaja null buat fase RED
+        return "order/createOrder";
     }
 
     @GetMapping("/history")
     public String orderHistoryPage() {
-        return null; // Sengaja null buat fase RED
+        return "order/orderHistory";
     }
 
     @PostMapping("/history")
     public String orderHistoryPost(@RequestParam("author") String author, Model model) {
-        return null; // Sengaja null buat fase RED
+        List<Order> orders = orderService.findAllByAuthor(author);
+        model.addAttribute("orders", orders);
+        return "order/orderList";
     }
 
     @GetMapping("/pay/{orderId}")
     public String payOrderPage(@PathVariable String orderId, Model model) {
-        return null; // Sengaja null buat fase RED
+        Order order = orderService.findById(orderId);
+        model.addAttribute("order", order);
+        return "order/payOrder";
     }
 
     @PostMapping("/pay/{orderId}")
     public String payOrderPost(@PathVariable String orderId, Model model) {
-        return null; // Sengaja null buat fase RED
+        return "order/paymentIdPage";
     }
 }
