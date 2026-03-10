@@ -13,33 +13,39 @@ public class Order {
     private String author;
     private String status;
 
-    // Status default "WAITING_PAYMENT"
+    // Constructor pertama tanpa parameter status
     public Order(String id, List<Product> products, Long orderTime, String author) {
-        if (products == null || products.isEmpty()) {
-            throw new IllegalArgumentException("Product tidak boleh kosong");
-        }
         this.id = id;
-        this.products = products;
         this.orderTime = orderTime;
         this.author = author;
         this.status = "WAITING_PAYMENT";
+
+        if (products.isEmpty()) {
+            throw new IllegalArgumentException();
+        } else {
+            this.products = products;
+        }
     }
 
-    // Dengan parameter status
+    // Constructor kedua dengan parameter status
     public Order(String id, List<Product> products, Long orderTime, String author, String status) {
         this(id, products, orderTime, author);
 
-        this.setStatus(status);
+        String[] statusList = {"WAITING_PAYMENT", "FAILED", "SUCCESS", "CANCELLED"};
+        if (Arrays.stream(statusList).noneMatch(item -> (item.equals(status)))) {
+            throw new IllegalArgumentException();
+        } else {
+            this.status = status;
+        }
     }
 
+    // setStatus manual
     public void setStatus(String status) {
-        List<String> validStatus = Arrays.asList("WAITING_PAYMENT", "FAILED", "CANCELLED", "SUCCESS");
-
-        if (validStatus.contains(status)) {
-            this.status = status;
+        String[] statusList = {"WAITING_PAYMENT", "FAILED", "SUCCESS", "CANCELLED"};
+        if (Arrays.stream(statusList).noneMatch(item -> (item.equals(status)))) {
+            throw new IllegalArgumentException();
         } else {
-            // Status invalid
-            throw new IllegalArgumentException("Status tidak valid: " + status);
+            this.status = status;
         }
     }
 }
